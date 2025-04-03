@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Google Docs</title>
+    <link rel="shortcut icon" href="https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            color: #ffffff;
+            font-family: 'Roboto Mono', monospace;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            background: rgba(42, 42, 42, 0.9);
+            border-bottom: 3px solid #ff4444;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 2.8em;
+            font-weight: 600;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+            display: none;
+            letter-spacing: 2px;
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+
+        h1::after {
+            content: ' 💀';
+            color: #ff4444;
+        }
+
+        h3 {
+            color: #dddddd;
+            font-size: 1.3em;
+            margin: 15px 0;
+            text-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+            display: none;
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        #gameSearch {
+            background: rgba(42, 42, 42, 0.85) url('https://cdn-icons-png.flaticon.com/512/54/54481.png') no-repeat 10px center;
+            background-size: 20px;
+            color: #ffffff;
+            border: 2px solid #00c4cc;
+            padding: 12px 20px 12px 40px;
+            width: 350px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            font-family: 'Roboto Mono', monospace;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #gameSearch:focus {
+            outline: none;
+            border-color: #ff4444;
+            box-shadow: 0 0 12px rgba(255, 68, 68, 0.5);
+        }
+
+        #gameSearch::placeholder {
+            color: #777777;
+        }
+
+        .section-title {
+            text-align: center;
+            color: #ff4444;
+            font-size: 1.8em;
+            margin: 20px 0;
+            text-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
+        }
+
+        .button-container, .recently-played {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .recently-played-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px 30px;
+            text-align: center;
+        }
+
+        .game-button {
+            background: rgba(42, 42, 42, 0.9);
+            border: 1px solid #555555;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-button:hover {
+            background: rgba(60, 60, 60, 0.9);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 0 0 15px rgba(255, 68, 68, 0.3);
+        }
+
+        .game-button.active {
+            border-color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+        }
+
+        .game-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255, 68, 68, 0.2), transparent);
+            transition: all 0.5s;
+        }
+
+        .game-button:hover::before {
+            left: 100%;
+        }
+
+        .game-button span {
+            display: block;
+            color: #ffffff;
+            font-size: 1em;
+            font-weight: 600;
+            white-space: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 1;
+            max-width: 100%;
+        }
+
+        .embed-container {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #0a141f;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+            display: none;
+        }
+
+        object {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #unblockBtn, #clearRecentBtn {
+            background: rgba(42, 42, 42, 0.9);
+            border: 2px solid #00c4cc;
+            color: #00c4cc;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #unblockBtn:hover, #clearRecentBtn:hover {
+            background: #00c4cc;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 196, 204, 0.5);
+        }
+
+        #unblockBtn {
+            display: none;
+            margin: 30px auto;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                padding: 20px 0;
+            }
+
+            .button-container, .recently-played {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 15px;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            h3 {
+                font-size: 1.1em;
+            }
+
+            #gameSearch {
+                width: 85%;
+                padding: 10px 15px 10px 35px;
+                background-size: 18px;
+            }
+
+            .game-button {
+                min-height: 80px;
+                padding: 15px;
+            }
+
+            .game-button span {
+                font-size: 0.9em;
+            }
+
+            #unblockBtn, #clearRecentBtn {
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="header">
+        <h1>idk what to put here</h1>
+        <h3>some are tests and may be blocked</h3>
+    </div>
+    <div class="search-container">
+        <input type="text" id="gameSearch" placeholder="Search games or tags...">
+    </div>
+    <div class="section-title">Recently Played</div>
+    <div id="recently-played" class="recently-played"></div>
+    <div class="recently-played-container">
+        <button id="clearRecentBtn">Clear Recently Played</button>
+    </div>
+    <div class="section-title">All Games</div>
+    <div id="button-container" class="button-container"></div>
+    <div id="embed-container" class="embed-container">
+        <object id="embedObject" data="">
+            IP Blocked :(
+        </object>
+    </div>
+    <button id="unblockBtn">YT & Shorts Unblocker</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script>
+        const correctPasscode = 'skibiditoiletfrfr';
+        const buttonsData = {
+            "Interstellar Proxy (BUGGY)": "https://order.toastapp.bocellipizza.com/",
+            "Minecraft": "https://codehs.com/uploads/444ff6c1f949581115c4246d28352396",
+            "Minecraft V2 (more smooth, requires u to not be dumb)": "https://codehs.com/uploads/03835379b0afb7e3e7cac88a74b98fce",
+            "Idle Breakout": "https://jobs.saer-emploi.com/e/1/idle-breakout/index.html",
+            "Cookie Clicker": "https://html.cafe/xe5f79f8e",
+            "ArmedForces.io": "https://evolution.biologycontest.com/games/2021/unity3/armedforces-io/index.html",
+            "Time Shooter 2": "https://html.cafe/xc3e3dbd0",
+            "Time Shooter 3": "https://html.cafe/xec37f820",
+            "Basket Random": "https://html.cafe/x94a9c242",
+            "Soccer Random": "https://html.cafe/x72322a1e",
+            "Volley Random": "https://html.cafe/xc80d3444",
+            "Drift Boss": "https://html.cafe/x0c75d08e",
+            "Drift Hunters": "https://html.cafe/x3350abc7",
+            "Drive Mad": "https://html.cafe/x38ef38a3",
+            "Madalin Stunt Cars": "https://html.cafe/x6225bb97",
+            "Bitlife": "https://html.cafe/x4c617a34",
+            "Paper.io 2": "https://html.cafe/xd243fd55",
+            "OvO": "https://html.cafe/x4ce02684",
+            "Geometry Dash": "https://html.cafe/x520c1df0",
+            "Territorial.io": "https://territorial.io",
+            "Infinite Craft": "https://html.cafe/xac49551a",
+            "Hole.io": "https://html.cafe/xe93814ba",
+            "Run 3": "https://html.cafe/x7806badf",
+            "Rooftop Snipers": "https://html.cafe/xbd4cd82a",
+            "Super Mario Bros": "https://html.cafe/x967d4495",
+            "Slither.io": "https://html.cafe/x286569dd",
+            "Funny Shooter 2": "https://html.cafe/x42e4a21f",
+            "Google Dino": "https://html.cafe/xe2f35239",
+            "1v1.lol": "https://html.cafe/x24d7f2d2",
+            "Snow Rider": "https://html.cafe/xeddcffa9",
+            "Getaway Shootout": "https://html.cafe/x3de2d46c",
+            "Retro Bowl": "https://html.cafe/xea8f9603",
+            "Car King Arena": "https://html.cafe/x305fecaf",
+            "2048": "https://jobs.saer-emploi.com/e/1/2048/index.html",
+            "Slope": "https://html.cafe/xb0098c83",
+            "GunSpin": "https://html.cafe/xf74c72e5",
+            "html.cafe": "https://html.cafe/gallery",
+            "test ignore": "https://html.cafe/x57a3d321",
+        };
+
+        let recentlyPlayed = JSON.parse(localStorage.getItem('recentlyPlayed')) || [];
+
+        function validatePasscode() {
+            const storedPasscode = localStorage.getItem('passcodeValidated');
+            if (!storedPasscode || storedPasscode !== correctPasscode) {
+                const passcode = prompt("Enter passcode:");
+                if (passcode === correctPasscode) {
+                    localStorage.setItem('passcodeValidated', correctPasscode);
+                    showContent();
+                } else {
+                    localStorage.removeItem('passcodeValidated');
+                    alert("Incorrect passcode.");
+                    validatePasscode();
+                }
+            } else {
+                showContent();
+            }
+        }
+
+        function showContent() {
+            document.querySelector('h1').style.display = 'block';
+            document.querySelector('h3').style.display = 'block';
+            document.getElementById('unblockBtn').style.display = 'block';
+            generateButtons();
+            generateRecentlyPlayed();
+            document.getElementById('unblockBtn').onclick = unblockYT;
+            document.getElementById('clearRecentBtn').onclick = clearRecentlyPlayed;
+        }
+
+        function generateButtons() {
+            const container = document.getElementById('button-container');
+            if (container.children.length > 0) return;
+            for (const [buttonName, url] of Object.entries(buttonsData)) {
+                const button = document.createElement('div');
+                button.className = 'game-button';
+                button.innerHTML = `<span>${buttonName}</span>`;
+                button.onclick = () => {
+                    if (buttonName === "Minecraft") {
+                        window.open(url, '_blank');
+                    } else {
+                        showEmbed(url);
+                        addToRecentlyPlayed(buttonName, url);
+                    }
+                };
+                container.appendChild(button);
+            }
+        }
+
+        function generateRecentlyPlayed() {
+            const container = document.getElementById('recently-played');
+            container.innerHTML = '';
+            if (recentlyPlayed.length === 0) {
+                container.innerHTML = '<p style="color: #777; text-align: center; grid-column: 1 / -1;">No recently played games yet!</p>';
+                return;
+            }
+            recentlyPlayed.slice(0, 5).forEach(([name, url]) => {
+                const button = document.createElement('div');
+                button.className = 'game-button';
+                button.innerHTML = `<span>${name}</span>`;
+                button.onclick = () => {
+                    if (name === "Minecraft") {
+                        window.open(url, '_blank');
+                    } else {
+                        showEmbed(url);
+                        addToRecentlyPlayed(name, url);
+                    }
+                };
+                container.appendChild(button);
+            });
+        }
+
+        function addToRecentlyPlayed(name, url) {
+            recentlyPlayed = recentlyPlayed.filter(([n]) => n !== name);
+            recentlyPlayed.unshift([name, url]);
+            recentlyPlayed = recentlyPlayed.slice(0, 5);
+            localStorage.setItem('recentlyPlayed', JSON.stringify(recentlyPlayed));
+            generateRecentlyPlayed();
+        }
+
+        function clearRecentlyPlayed() {
+            recentlyPlayed = [];
+            localStorage.setItem('recentlyPlayed', JSON.stringify(recentlyPlayed));
+            generateRecentlyPlayed();
+        }
+
+        function showEmbed(url) {
+            const embedContainer = document.getElementById('embed-container');
+            const embedObject = document.getElementById('embedObject');
+            const buttonContainer = document.getElementById('button-container');
+            const recentlyPlayedContainer = document.getElementById('recently-played');
+            
+            document.querySelector('h1').style.display = 'none';
+            document.querySelector('h3').style.display = 'none';
+            document.getElementById('unblockBtn').style.display = 'none';
+            buttonContainer.style.display = 'none';
+            recentlyPlayedContainer.style.display = 'none';
+            
+            if (embedObject) {
+                embedObject.removeAttribute('data');
+                embedObject.removeAttribute('src');
+                embedObject.setAttribute('data', url);
+                embedObject.setAttribute('src', url);
+            }
+            
+            embedContainer.style.display = 'block';
+            embedContainer.style.opacity = '0';
+            setTimeout(() => {
+                embedContainer.style.opacity = '1';
+            }, 10);
+        }
+
+        function closeEmbed() {
+            const embedContainer = document.getElementById('embed-container');
+            const embedObject = document.getElementById('embedObject');
+            const buttonContainer = document.getElementById('button-container');
+            const recentlyPlayedContainer = document.getElementById('recently-played');
+            
+            embedContainer.style.transition = 'opacity 0.3s';
+            embedContainer.style.opacity = '0';
+            
+            setTimeout(() => {
+                embedContainer.style.display = 'none';
+                if (embedObject) {
+                    embedObject.data = 'about:blank';
+                    embedObject.src = 'about:blank';
+                }
+                document.querySelector('h1').style.display = 'block';
+                document.querySelector('h3').style.display = 'block';
+                document.getElementById('unblockBtn').style.display = 'block';
+                buttonContainer.style.display = 'grid';
+                recentlyPlayedContainer.style.display = 'grid';
+            }, 500);
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        function searchGames() {
+            const searchTerm = document.getElementById('gameSearch').value.toLowerCase();
+            const buttons = document.querySelectorAll('.game-button');
+            buttons.forEach(button => {
+                const gameName = button.querySelector('span').textContent.toLowerCase();
+                button.style.display = gameName.includes(searchTerm) ? 'flex' : 'none';
+            });
+        }
+
+        function unblockYT() {
+            const link = prompt("Enter a YouTube or Shorts link:");
+            if (link && (link.includes('youtube.com') || link.includes('youtu.be'))) {
+                let videoId = link.includes('shorts/') ? 
+                    link.split('shorts/')[1] : 
+                    (link.split('v=')[1]?.split('&')[0] || link.split('.be/')[1]);
+                if (!videoId) {
+                    alert("Invalid YouTube link!");
+                    return;
+                }
+                const embedLink = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                showEmbed(embedLink);
+            } else {
+                alert("Please enter a valid YouTube or Shorts link!");
+            }
+        }
+
+        document.getElementById('gameSearch').onkeyup = debounce(searchGames, 300);
+
+        showContent();
+    </script>
+</body>
+</html>
